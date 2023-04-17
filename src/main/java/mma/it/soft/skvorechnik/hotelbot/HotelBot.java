@@ -635,8 +635,14 @@ public class HotelBot extends TelegramLongPollingBot {
         String text = message.getText();
         Long questionID = adminToQuestion.get(chatId);
         Optional<Question> questionOptional = questionRepository.findById(questionID);
+
+        if (!questionOptional.isPresent()) {
+            // Обработка ситуации, когда объект Question не найден
+            return;
+        }
+
         Question question = questionOptional.get();
-        sendMessage(question.getChatGestID(), "Администратор " + userName +": "+ message.getText());
+        sendMessage(question.getChatGestID(), "Администратор " + userName + ": " + message.getText());
         question.setAnswer(text);
         question.setProcessed(true);
         questionRepository.save(question);
