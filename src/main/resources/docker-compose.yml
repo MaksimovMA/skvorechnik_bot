@@ -1,0 +1,13 @@
+
+version: "3.9"
+services:
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "skvorechnik"
+      POSTGRES_USER: "skuser"
+      POSTGRES_PASSWORD: "skpassword"
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
