@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class HotelBot extends TelegramLongPollingBot {
 
     private Map<Long, BotState> userStates = new HashMap<>();
-    private Map<Long, Long> adminToGest = new HashMap<>();
+    private Map<Long, Long> adminToQuestion = new HashMap<>();
 
     String sendBroadcastPrefix = "Skvoreshniki-post";
     String adminONPrefix = "Skadminon";
@@ -608,12 +608,12 @@ public class HotelBot extends TelegramLongPollingBot {
         String lastName = user.getLastName();
         String text = message.getText();
         LocalDateTime localDateTime = LocalDateTime.now();
-
-        questionRepository.save(new Question(chatId,null,userName,firstName,lastName,text,null,localDateTime,false));
+        Question question = new Question(chatId,null,userName,firstName,lastName,text,null,localDateTime,false);
+        questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
         message.setReplyMarkup(getAdminChatMenuKeyboard());
-        sendMessagetoAdmin(1702253908,
-                chatId +"."+ lastName + " " + firstName + " Задал(а) вопрос администратору: " + text, message);
+        sendMessageToAdmin(1702253908,
+                question.getId() +"."+ lastName + " " + firstName + " Задал(а) вопрос администратору: " + text, message);
 
         SendMessage response = new SendMessage();
         response.setChatId(chatId);
@@ -632,24 +632,18 @@ public class HotelBot extends TelegramLongPollingBot {
         long chatId = message.getChatId();
         User user = message.getFrom();
         String userName = user.getUserName();
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
         String text = message.getText();
-        LocalDateTime localDateTime = LocalDateTime.now();
-        long gestId = adminToGest.get(chatId);
-        sendMessage(gestId, "Администратор " + userName +": "+ message.getText());
-        Question question = questionRepository.findQuestionsByChatGestIDAndChatAdminID(gestId,chatId);
+        Long questionID = adminToQuestion.get(chatId);
+        Optional<Question> questionOptional = questionRepository.findById(questionID);
+        Question question = questionOptional.get();
+        sendMessage(question.getChatGestID(), "Администратор " + userName +": "+ message.getText());
         question.setAnswer(text);
         question.setProcessed(true);
         questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
         message.setReplyMarkup(getAdminChatMenuKeyboard());
-
-
-
         SendMessage response = new SendMessage();
         response.setChatId(chatId);
-       // response.setText("Администратор получил ваш вопрос и скоро отевтит на него.");
         try {
             execute(response);
         } catch (TelegramApiException e) {
@@ -660,13 +654,12 @@ public class HotelBot extends TelegramLongPollingBot {
     private void sendBroadcastMessage(String text) {
         Set<HotelUser> hotelUsers = userRepository.findAll();
         Set<Long> subscribers = hotelUsers.stream().map(HotelUser::getChatID).collect(Collectors.toSet());
-
         for (Long chatId : subscribers) {
             sendMessage(chatId, text);
         }
     }
 
-    private void sendMessagetoAdmin(long chatId, String text, Message messagetoAdmin) {
+    private void sendMessageToAdmin(long chatId, String text, Message messagetoAdmin) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);
@@ -707,9 +700,12 @@ public class HotelBot extends TelegramLongPollingBot {
 
             case "answerToGuest" -> { message.setText("Ответ:");
                 String text = (callbackQuery.getMessage().getText());
-                String idGest = text.substring(0,text.indexOf('.'));
-                Question question = questionRepository.findFirstByChatGestID(Long.valueOf(idGest));
+                String questionId = text.substring(0,text.indexOf('.'));
+                Optional<Question> optionalQuestion = questionRepository.findById(Long.valueOf(questionId));
+                Question question = optionalQuestion.get();
                 question.setChatAdminID(chatId);
+                questionRepository.save(question);
+                adminToQuestion.put(chatId, Long.valueOf(questionId));
                 userStates.put(chatId, BotState.WAITING_FOR_ANSWER_TO_GEST);
             }
 
