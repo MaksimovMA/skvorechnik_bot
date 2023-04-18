@@ -105,12 +105,12 @@ public class HotelBot extends TelegramLongPollingBot {
 
         if (messageText.equals("Старт")) {
             message.setText("Добро пожаловать в наш отель! Выберите опцию:");
-            saveUserToDatabase(chatId,userName, firstName, lastName, messageText);
+            saveUserToDatabase(chatId, userName, firstName, lastName, messageText);
             message.setReplyMarkup(getMainMenuKeyboard());
         } else {
             if (messageText.startsWith(adminAddPrefix)) {
                 message.setText("Новый админ %s %s зарегестрирован(a)".formatted(firstName, lastName));
-                saveAdminUserToDatabase(chatId, userName, firstName, lastName, messageText,true);
+                saveAdminUserToDatabase(chatId, userName, firstName, lastName, messageText, true);
             } else if (messageText.startsWith(adminOFFPrefix)) {
                 message.setText("Режим админа выключен");
                 AdminUser adminUser = adminUserRepository.findByChatID(chatId);
@@ -182,7 +182,6 @@ public class HotelBot extends TelegramLongPollingBot {
         InlineKeyboardButton button7 = new InlineKeyboardButton("\uD83D\uDC69\u200D\uD83D\uDCBCЗадать вопрос администратору");
         button7.setCallbackData("ask_admin"); // добавляем callbackData
         row7.add(button7);
-
 
 
         keyboard.add(row1);
@@ -280,25 +279,18 @@ public class HotelBot extends TelegramLongPollingBot {
 
     private InlineKeyboardMarkup getBookMenuKeyboard() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-
-        InlineKeyboardButton button1 = new InlineKeyboardButton("\uD83C\uDFE0Через наш сайт");
-        button1.setCallbackData("sk_site"); // добавляем callbackData
-        row1.add(button1);
-
-        InlineKeyboardButton button2 = new InlineKeyboardButton("Через системы-посредники");
-        button2.setCallbackData("book_systems"); // добавляем callbackData
-        row2.add(button2);
-
-        keyboard.add(row1);
-        keyboard.add(row2);
-
+        List<List<InlineKeyboardButton>> keyboard = Stream.of(
+                        new AbstractMap.SimpleEntry<>("\uD83C\uDFE0Через наш сайт", "sk_site"),
+                        new AbstractMap.SimpleEntry<>("Через системы-посредники", "book_systems")
+                )
+                .map(entry -> {
+                    InlineKeyboardButton button = new InlineKeyboardButton(entry.getKey());
+                    button.setCallbackData(entry.getValue());
+                    return Collections.singletonList(button);
+                })
+                .collect(Collectors.toList());
         markup.setKeyboard(keyboard);
         return markup;
-
     }
 
     private InlineKeyboardMarkup getBookSystemsMenuKeyboard() {
@@ -436,7 +428,6 @@ public class HotelBot extends TelegramLongPollingBot {
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
         message.setReplyMarkup(getAdminChatMenuKeyboard());
         sendMessageToAdmin(1702253908, question.getId() + "." + user.getLastName() + " " + user.getFirstName() + " Задал(а) вопрос администратору: " + text, message);
-
         sendResponse(chatId, "Администратор получил ваш вопрос и скоро он ответит вам.");
     }
 
@@ -512,23 +503,24 @@ public class HotelBot extends TelegramLongPollingBot {
         }
     }
 
-        private void handleCallbackQuery(CallbackQuery callbackQuery) {
-            String callbackData = callbackQuery.getData();
-            long chatId = callbackQuery.getMessage().getChatId();
+    private void handleCallbackQuery(CallbackQuery callbackQuery) {
+        String callbackData = callbackQuery.getData();
+        long chatId = callbackQuery.getMessage().getChatId();
 
-            SendMessage message = new SendMessage();
-            message.setChatId(chatId);
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
 
-            switch (callbackData) {
+        switch (callbackData) {
 
             case "ask_admin" -> {
                 message.setText("Задайте вопрос администратору:");
                 userStates.put(chatId, BotState.WAiTING_FOR_ADMIN);
             }
 
-            case "answerToGuest" -> { message.setText("Ответ:");
+            case "answerToGuest" -> {
+                message.setText("Ответ:");
                 String text = (callbackQuery.getMessage().getText());
-                String questionId = text.substring(0,text.indexOf('.'));
+                String questionId = text.substring(0, text.indexOf('.'));
                 Optional<Question> optionalQuestion = questionRepository.findById(Long.valueOf(questionId));
                 Question question = optionalQuestion.get();
                 question.setChatAdminID(chatId);
@@ -551,141 +543,142 @@ public class HotelBot extends TelegramLongPollingBot {
             case "email" -> message.setText("skvoreshniki-apart@yandex.ru");
             case "vk" -> message.setText("https://vk.com/skvoreshnikiapart");
             case "instagram" -> message.setText("https://instagram.com/skvoreshnikiapart");
-            case "sk_site" -> message.setText("https://reservationsteps.ru/rooms/index/21690a52-1665-49cb-86e3-5061050c58ea");
+            case "sk_site" ->
+                    message.setText("https://reservationsteps.ru/rooms/index/21690a52-1665-49cb-86e3-5061050c58ea");
             case "booking" -> {
                 message.setText("Забронировать");
                 message.setReplyMarkup(getBookMenuKeyboard());
             }
             case "book_systems" -> {
-                    message.setText("Через системы-посредники");
-                    message.setReplyMarkup(getBookSystemsMenuKeyboard());
-                }
-            case "oneTwoTrip" ->  message.setText("https://www.onetwotrip.com/");
-            case "ostrovok" ->  message.setText("https://ostrovok.ru/");
-            case "yandex" ->  message.setText("https://travel.yandex.ru/");
-            case "bronevik" ->  message.setText("https://bronevik.com/");
-            case "alean" ->  message.setText("https://www.alean.ru/");
-            case "sutochno" ->  message.setText("https://sutochno.ru/");
-            case "tvil" ->  message.setText("https://tvil.ru/");
+                message.setText("Через системы-посредники");
+                message.setReplyMarkup(getBookSystemsMenuKeyboard());
+            }
+            case "oneTwoTrip" -> message.setText("https://www.onetwotrip.com/");
+            case "ostrovok" -> message.setText("https://ostrovok.ru/");
+            case "yandex" -> message.setText("https://travel.yandex.ru/");
+            case "bronevik" -> message.setText("https://bronevik.com/");
+            case "alean" -> message.setText("https://www.alean.ru/");
+            case "sutochno" -> message.setText("https://sutochno.ru/");
+            case "tvil" -> message.setText("https://tvil.ru/");
             case "route_info" -> {
-                    message.setText("Через системы-посредники");
-                    message.setReplyMarkup(getRouteMenuKeyboard());
-                }
+                message.setText("Через системы-посредники");
+                message.setReplyMarkup(getRouteMenuKeyboard());
+            }
             case "walk_route" -> message.setText("Без машины удобнее всего добираться от станции метро Беговая.\n" +
                     "Остановка Станция метро Беговая ( в сторону на Сестрорецк) - автобусы 101А, 211, 216, 216А, 303, 600 до остановки Военная улица. Лисий нос, и еще 5 минут пешком до нас.\n" +
                     "На такси от метро Беговая - около 10 минут езды. ( Приморское шоссе 96)\n" +
                     "На электричке от Финляндского вокзала, до станции Лисий нос . От нее около 18 минут ходьбы.");
             case "car_route" -> message.setText("https://yandex.ru/maps/-/CCU85Ovg0D");
-            case "important_info" -> message.setText("Наш адрес: Санкт-Петербург, поселок Лисий Нос, Приморское шоссе, 96. Въезд на территорию - прямо с шоссе (серый каменный забор, деревянные ворота).\n" +
-                    "На территории постоянно находится дежурный администратор. Телефон для связи 8 (921) 588-53-39. Звоните ей по прибытии, и она поможет с заселением. \n" +
-                    "\n" +
-                    "Взимается депозит 3000р\\на апартамент. \n" +
-                    "\n" +
-                    "Парковка на территории бесплатная при наличии мест. Заезд с 14.00 до 23.00, выезд до 12.00. Если вы не на машине, удобнее всего добраться от м.Беговая на автобусе № 101, 211, 216, 303, 600 или на маршрутках № 305, 400, 405, 417. Остановка \"Лисий нос. Военная улица\". Время в пути 18минут.\n" +
-                    "\n" +
-                    "На территории работает  Wi-Fi - логин и пароль Вы можете найти в папке гостя в вашем номере.\n" +
-                    "\n" +
-                    "В кухне имеется следующий набор посуды и бытовой техники на 4 чел: микроволновка, холодильник, однокомфорочная индукционная плита, кастрюля, сковорода, ковш, чайник, френчпресс для кофе/чая, тарелки плоские и глубокие, кружки, бокалы, столовые приборы, ножи, доска разделочная, штопор. В санузле имеется фен. В спальне - постельное белье и по 2 полотенца на каждого гостя.\n" +
-                    "\n" +
-                    "Рекомендуем покупать бутилированную питьевую воду.\n" +
-                    "Мы ожидаем, что гости помоют за собой посуду при выезде.\n" +
-                    "Убедительно просим не смывать в унитаз туалетную бумагу и другие предметы.\n" +
-                    "Курить в апартаментах строго запрещено.\n" +
-                    "Выгуливать собак на территории запрещено. \n" +
-                    "Администратор при выезде проверяет апарт на предмет наличия и сохранности всего, что было передано гостю в аренду.\n" +
-                    "\n" +
-                    "К ВАШИМ УСЛУГАМ ТАКЖЕ :\n" +
-                    "- Мангал и шампуры/решетка (входят в стоимость проживания)\n" +
-                    "- Уголь 400 руб, розжиг 200 руб.\n" +
-                    "- Садовая мебель рядом с жилыми модулями, настольные игры, бадминтон, дартс (бесплатно по запросу у администратора).\n" +
-                    "- Зона отдыха с креслами-качелями и костровой чашей (дрова для костровой чаши по запросу у администратора, 200 руб. за связку).\n" +
-                    "- Прокат велосипедов: 200 руб. первый час, 150 руб. последующие часы, день/ночь (с 10.00до 21.00,с 21.00 до 11.00 - 900руб. Сутки (24 часа) - 1200 руб. В залог необходимо оставить паспорт/права/свидетельство о рождении.\n" +
-                    "\n" +
-                    "Продуктовый магазин: Магнит и местный ресторанчик - 5 минут ходьбы налево из ворот. Пляж Морские Дубки- 7 минут на машине или 30 минут пешком, ул. Новоцентральная. Пляж оборудован местами для отдыха и детской площадкой.\n" +
-                    "\n" +
-                    "Приглашаем также вступить в нашу группу в Инстаграм https://instagram.com/skvoreshnikiapart?igshid=YmMyMTA2M2Y= и VK https://vk.com/skvoreshnikiapart \n" +
-                    "\n" +
-                    "Приятного отдыха! Всегда рады помочь!\n" +
-                    "\n" +
-                    "Команда Скворешников");
-
+            case "important_info" ->
+                    message.setText("Наш адрес: Санкт-Петербург, поселок Лисий Нос, Приморское шоссе, 96. Въезд на территорию - прямо с шоссе (серый каменный забор, деревянные ворота).\n" +
+                            "На территории постоянно находится дежурный администратор. Телефон для связи 8 (921) 588-53-39. Звоните ей по прибытии, и она поможет с заселением. \n" +
+                            "\n" +
+                            "Взимается депозит 3000р\\на апартамент. \n" +
+                            "\n" +
+                            "Парковка на территории бесплатная при наличии мест. Заезд с 14.00 до 23.00, выезд до 12.00. Если вы не на машине, удобнее всего добраться от м.Беговая на автобусе № 101, 211, 216, 303, 600 или на маршрутках № 305, 400, 405, 417. Остановка \"Лисий нос. Военная улица\". Время в пути 18минут.\n" +
+                            "\n" +
+                            "На территории работает  Wi-Fi - логин и пароль Вы можете найти в папке гостя в вашем номере.\n" +
+                            "\n" +
+                            "В кухне имеется следующий набор посуды и бытовой техники на 4 чел: микроволновка, холодильник, однокомфорочная индукционная плита, кастрюля, сковорода, ковш, чайник, френчпресс для кофе/чая, тарелки плоские и глубокие, кружки, бокалы, столовые приборы, ножи, доска разделочная, штопор. В санузле имеется фен. В спальне - постельное белье и по 2 полотенца на каждого гостя.\n" +
+                            "\n" +
+                            "Рекомендуем покупать бутилированную питьевую воду.\n" +
+                            "Мы ожидаем, что гости помоют за собой посуду при выезде.\n" +
+                            "Убедительно просим не смывать в унитаз туалетную бумагу и другие предметы.\n" +
+                            "Курить в апартаментах строго запрещено.\n" +
+                            "Выгуливать собак на территории запрещено. \n" +
+                            "Администратор при выезде проверяет апарт на предмет наличия и сохранности всего, что было передано гостю в аренду.\n" +
+                            "\n" +
+                            "К ВАШИМ УСЛУГАМ ТАКЖЕ :\n" +
+                            "- Мангал и шампуры/решетка (входят в стоимость проживания)\n" +
+                            "- Уголь 400 руб, розжиг 200 руб.\n" +
+                            "- Садовая мебель рядом с жилыми модулями, настольные игры, бадминтон, дартс (бесплатно по запросу у администратора).\n" +
+                            "- Зона отдыха с креслами-качелями и костровой чашей (дрова для костровой чаши по запросу у администратора, 200 руб. за связку).\n" +
+                            "- Прокат велосипедов: 200 руб. первый час, 150 руб. последующие часы, день/ночь (с 10.00до 21.00,с 21.00 до 11.00 - 900руб. Сутки (24 часа) - 1200 руб. В залог необходимо оставить паспорт/права/свидетельство о рождении.\n" +
+                            "\n" +
+                            "Продуктовый магазин: Магнит и местный ресторанчик - 5 минут ходьбы налево из ворот. Пляж Морские Дубки- 7 минут на машине или 30 минут пешком, ул. Новоцентральная. Пляж оборудован местами для отдыха и детской площадкой.\n" +
+                            "\n" +
+                            "Приглашаем также вступить в нашу группу в Инстаграм https://instagram.com/skvoreshnikiapart?igshid=YmMyMTA2M2Y= и VK https://vk.com/skvoreshnikiapart \n" +
+                            "\n" +
+                            "Приятного отдыха! Всегда рады помочь!\n" +
+                            "\n" +
+                            "Команда Скворешников");
 
 
             case "review" -> {
-                    message.setText("Пожалуйста, оставьте свой отзыв:");
-                    userStates.put(chatId, BotState.WAITING_FOR_REVIEW);
-                }
-                case "top_question" -> {
-                    message.setText("Популярные вопросы");
-                    message.setReplyMarkup(getQuestionMenuKeyboard());
-                }
+                message.setText("Пожалуйста, оставьте свой отзыв:");
+                userStates.put(chatId, BotState.WAITING_FOR_REVIEW);
+            }
+            case "top_question" -> {
+                message.setText("Популярные вопросы");
+                message.setReplyMarkup(getQuestionMenuKeyboard());
+            }
 
 
-                case "question_1" -> {
-                    message.setText("Время заезда - с 14-00.\n" +
-                            "Время выезда - до 12-00.\n" +
-                            "На территории всегда находится администратор, если вы планируете приехать поздно, предупредите администратора по телефону 8(921)588-53-39");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_2" -> {
-                    message.setText("В стоимость включено проживание, пользование мангальной зоной и садовой мебелью, парковка на территории.\n" +
-                            "У администратора можно бесплатно взять шампура и решетки для мангала.\n" +
-                            "Большой ассортимент настольных игр - бесплатно");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_3" -> {
-                    message.setText("Парковка для гостей бесплатная и находится на территории. Въезд прямо с Приморского шоссе.");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_4" -> {
-                    message.setText("Рядом с нами расположен магазин «Магнит» - 5 минут ходьбы налево при выходе из наших ворот.\n" +
-                            "\n" +
-                            "Магазин \"Peaлъ\" - 800 метров (15 минут) направо при выходе из наших ворот.");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_5" -> {
-                    message.setText("Апартаменты состоят из спальни с двуспальной кроватью, совмещенной кухни-гостиной с диваном и собственной ванной комнаты с душем.\n" +
-                            "В каждом апарте есть кухня, оборудованная всем необходимым для готовки и обеденный стол, за которым могут разместиться до 4х человек.\n" +
-                            "В кухне имеется следующий набор посуды и бытовой техники на 4 чел: микроволновка, холодильник, однокомфорочная индукционная плита, кастрюля, сковорода, ковш, чайник, френчпресс для кофе/чая, тарелки плоские и глубокие, кружки, бокалы, столовые приборы, ножи, доска разделочная, штопор.\n" +
-                            "Все апартаменты оснащены теплыми полами в кухне и спальне, и кондиционерами, которые так же могут работать на обогрев. \n" +
-                            "В санузле имеется фен.\n" +
-                            "Предоставляется постельное белье и полотенца для каждого гостя\n" +
-                            "В номерах есть Wi-Fi, ТВ\n" +
-                            "На улице возле домиков расположены террасные настилы с садовой мебелью и мангалами.");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_6" -> {
-                    message.setText("Все апартаменты имеют одинаковое оснащение, и незначительное отличие в цветовой гамме.\n" +
-                            "Главное отличие апартов это вид из окна.\n" +
-                            "У нас есть апарты:\n" +
-                            "1) С видом на соседнюю территорию, где расположен сад. \n" +
-                            "Преимущества: уединенно, не видно гостей на территории, потише.\n" +
-                            "2) С видом на центральное патио, где расположены качели. \n" +
-                            "Преимущества: видно что происходит на территории, видна парковка, вечером видны фонарики");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_7" -> {
-                    message.setText("У нас сдаются апартаменты, занимающие целый этаж.\n" +
-                            "На данный момент у нас 6 домиков, где сдается только второй этаж, а первый является нежилым. \n" +
-                            "В таких домиках внешняя лестница ведет сразу на 2 этаж в ваши апартаменты. \n" +
-                            "И т.к 1 этаж является нежилым, то фактически в домике вы находитесь одни.\n" +
-                            "Мангальная зона с мангалом и садовой мебелью в таком случае находится перед домиком, или же за ним. \n" +
-                            "И только в 1 домике у нас по-отдельности сдаются апартаменты на 1 и на 2 этаже. Домик спроектирован таким образом, что гости не пересекаются вовсе. \n" +
-                            "Гости, занимающие 1 этаж, имеют свою мангальную зону за домиком и отдельный вход в апартаменты.\n" +
-                            "Гости, занимающие 2 этаж, поднимаются в апартаменты по внешней лестнице с другой стороны домика, и имеют личную мангальную зону перед домиком.\n");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_8" -> {
-                    message.setText("Взимается залог  3000р\\на апартамент. При размещении с собаками взимается повышенный залог 5000р\\на апартамент. При соблюдении правил размещения и отсутствии повреждений в апартаменте залог возвращается в полном размере при выезде.");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
-                case "question_9" -> {
-                    message.setText("Мы принимаем воспитаных собак до 35см в холке и весом не более 10кг. Необходимо сообщать породу собаки при бронировании.\n" +
-                            "Доплата за питомца 500р\\сутки.\n" +
-                            "Так же обращаем внимание, что при размещении с собачками взимается залог в размере 5000р, а выгул на территории запрещен.\n" +
-                            "Проживание с кошками и иными животными, к сожалению, запрещено.");
-                    message.setReplyMarkup(getBackQuestionMenuKeyboard());
-                }
+            case "question_1" -> {
+                message.setText("Время заезда - с 14-00.\n" +
+                        "Время выезда - до 12-00.\n" +
+                        "На территории всегда находится администратор, если вы планируете приехать поздно, предупредите администратора по телефону 8(921)588-53-39");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_2" -> {
+                message.setText("В стоимость включено проживание, пользование мангальной зоной и садовой мебелью, парковка на территории.\n" +
+                        "У администратора можно бесплатно взять шампура и решетки для мангала.\n" +
+                        "Большой ассортимент настольных игр - бесплатно");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_3" -> {
+                message.setText("Парковка для гостей бесплатная и находится на территории. Въезд прямо с Приморского шоссе.");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_4" -> {
+                message.setText("Рядом с нами расположен магазин «Магнит» - 5 минут ходьбы налево при выходе из наших ворот.\n" +
+                        "\n" +
+                        "Магазин \"Peaлъ\" - 800 метров (15 минут) направо при выходе из наших ворот.");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_5" -> {
+                message.setText("Апартаменты состоят из спальни с двуспальной кроватью, совмещенной кухни-гостиной с диваном и собственной ванной комнаты с душем.\n" +
+                        "В каждом апарте есть кухня, оборудованная всем необходимым для готовки и обеденный стол, за которым могут разместиться до 4х человек.\n" +
+                        "В кухне имеется следующий набор посуды и бытовой техники на 4 чел: микроволновка, холодильник, однокомфорочная индукционная плита, кастрюля, сковорода, ковш, чайник, френчпресс для кофе/чая, тарелки плоские и глубокие, кружки, бокалы, столовые приборы, ножи, доска разделочная, штопор.\n" +
+                        "Все апартаменты оснащены теплыми полами в кухне и спальне, и кондиционерами, которые так же могут работать на обогрев. \n" +
+                        "В санузле имеется фен.\n" +
+                        "Предоставляется постельное белье и полотенца для каждого гостя\n" +
+                        "В номерах есть Wi-Fi, ТВ\n" +
+                        "На улице возле домиков расположены террасные настилы с садовой мебелью и мангалами.");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_6" -> {
+                message.setText("Все апартаменты имеют одинаковое оснащение, и незначительное отличие в цветовой гамме.\n" +
+                        "Главное отличие апартов это вид из окна.\n" +
+                        "У нас есть апарты:\n" +
+                        "1) С видом на соседнюю территорию, где расположен сад. \n" +
+                        "Преимущества: уединенно, не видно гостей на территории, потише.\n" +
+                        "2) С видом на центральное патио, где расположены качели. \n" +
+                        "Преимущества: видно что происходит на территории, видна парковка, вечером видны фонарики");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_7" -> {
+                message.setText("У нас сдаются апартаменты, занимающие целый этаж.\n" +
+                        "На данный момент у нас 6 домиков, где сдается только второй этаж, а первый является нежилым. \n" +
+                        "В таких домиках внешняя лестница ведет сразу на 2 этаж в ваши апартаменты. \n" +
+                        "И т.к 1 этаж является нежилым, то фактически в домике вы находитесь одни.\n" +
+                        "Мангальная зона с мангалом и садовой мебелью в таком случае находится перед домиком, или же за ним. \n" +
+                        "И только в 1 домике у нас по-отдельности сдаются апартаменты на 1 и на 2 этаже. Домик спроектирован таким образом, что гости не пересекаются вовсе. \n" +
+                        "Гости, занимающие 1 этаж, имеют свою мангальную зону за домиком и отдельный вход в апартаменты.\n" +
+                        "Гости, занимающие 2 этаж, поднимаются в апартаменты по внешней лестнице с другой стороны домика, и имеют личную мангальную зону перед домиком.\n");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_8" -> {
+                message.setText("Взимается залог  3000р\\на апартамент. При размещении с собаками взимается повышенный залог 5000р\\на апартамент. При соблюдении правил размещения и отсутствии повреждений в апартаменте залог возвращается в полном размере при выезде.");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
+            case "question_9" -> {
+                message.setText("Мы принимаем воспитаных собак до 35см в холке и весом не более 10кг. Необходимо сообщать породу собаки при бронировании.\n" +
+                        "Доплата за питомца 500р\\сутки.\n" +
+                        "Так же обращаем внимание, что при размещении с собачками взимается залог в размере 5000р, а выгул на территории запрещен.\n" +
+                        "Проживание с кошками и иными животными, к сожалению, запрещено.");
+                message.setReplyMarkup(getBackQuestionMenuKeyboard());
+            }
 
             case "question_10" -> {
                 message.setText("Мы находимся в очень красивом поселке Лисий нос.\n" +
@@ -811,8 +804,6 @@ public class HotelBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
-
 
 
     private void saveReviewToDatabase(Long id, String username, String firstname, String lastName, String review, LocalDateTime localDateTime) {
