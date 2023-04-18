@@ -531,12 +531,10 @@ public class HotelBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
 
         switch (callbackData) {
-
             case "ask_admin" -> {
                 message.setText("Задайте вопрос администратору:");
                 userStates.put(chatId, BotState.WAiTING_FOR_ADMIN);
             }
-
             case "answerToGuest" -> {
                 message.setText("Ответ:");
                 String text = (callbackQuery.getMessage().getText());
@@ -559,7 +557,6 @@ public class HotelBot extends TelegramLongPollingBot {
                 Optional<Question> question = questionRepository.findById(Long.valueOf(questionId));
                 message.setText(question.get().getAnswer());
             }
-
             case "contact" -> {
                 message.setText("Связаться");
                 message.setReplyMarkup(getContactMenuKeyboard());
@@ -633,8 +630,6 @@ public class HotelBot extends TelegramLongPollingBot {
                             "Приятного отдыха! Всегда рады помочь!\n" +
                             "\n" +
                             "Команда Скворешников");
-
-
             case "review" -> {
                 message.setText("Пожалуйста, оставьте свой отзыв:");
                 userStates.put(chatId, BotState.WAITING_FOR_REVIEW);
@@ -643,7 +638,6 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setText("Популярные вопросы");
                 message.setReplyMarkup(getQuestionMenuKeyboard());
             }
-
             case "question_1" -> {
                 message.setText("Время заезда - с 14-00.\n" +
                         "Время выезда - до 12-00.\n" +
@@ -709,7 +703,6 @@ public class HotelBot extends TelegramLongPollingBot {
                         "Проживание с кошками и иными животными, к сожалению, запрещено.");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
-
             case "question_10" -> {
                 message.setText("Мы находимся в очень красивом поселке Лисий нос.\n" +
                         "Через поселок можно прогуляться до Финского залива к Лисьему пляжу, или до пляжа Морские Дубки, прогулка в одну сторону займет около 25-30 минут. \n" +
@@ -835,7 +828,6 @@ public class HotelBot extends TelegramLongPollingBot {
         }
     }
 
-
     private void saveReviewToDatabase(Long id, String username, String firstname, String lastName, String review, LocalDateTime localDateTime) {
         Review newReview = new Review(id, username, firstname, lastName, review, localDateTime);
         reviewRepository.save(newReview);
@@ -850,6 +842,5 @@ public class HotelBot extends TelegramLongPollingBot {
         AdminUser adminUser = new AdminUser(id, username, firstname, lastName, message, LocalDateTime.now(), adminCative);
         adminUserRepository.save(adminUser);
     }
-
 }
 
