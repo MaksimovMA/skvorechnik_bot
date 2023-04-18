@@ -22,6 +22,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class HotelBot extends TelegramLongPollingBot {
@@ -302,54 +303,21 @@ public class HotelBot extends TelegramLongPollingBot {
 
     private InlineKeyboardMarkup getBookSystemsMenuKeyboard() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-        List<InlineKeyboardButton> row3 = new ArrayList<>();
-        List<InlineKeyboardButton> row4 = new ArrayList<>();
-        List<InlineKeyboardButton> row5 = new ArrayList<>();
-        List<InlineKeyboardButton> row6 = new ArrayList<>();
-        List<InlineKeyboardButton> row7 = new ArrayList<>();
-
-        InlineKeyboardButton button1 = new InlineKeyboardButton("OneTwoTrip");
-        button1.setCallbackData("oneTwoTrip"); // добавляем callbackData
-        row1.add(button1);
-
-        InlineKeyboardButton button2 = new InlineKeyboardButton("Оstrovok.ru");
-        button2.setCallbackData("ostrovok"); // добавляем callbackData
-        row2.add(button2);
-
-        InlineKeyboardButton button3 = new InlineKeyboardButton("https://ostrovok.ru/");
-        button3.setCallbackData("yandex"); // добавляем callbackData
-        row3.add(button3);
-
-        InlineKeyboardButton button4 = new InlineKeyboardButton("Bronevik.ru");
-        button4.setCallbackData("bronevik"); // добавляем callbackData
-        row4.add(button4);
-
-        InlineKeyboardButton button5 = new InlineKeyboardButton("Alean");
-        button5.setCallbackData("alean"); // добавляем callbackData
-        row5.add(button5);
-
-        InlineKeyboardButton button6 = new InlineKeyboardButton("Sutochno.ru");
-        button6.setCallbackData("sutochno"); // добавляем callbackData
-        row6.add(button6);
-
-        InlineKeyboardButton button7 = new InlineKeyboardButton("Твил");
-        button7.setCallbackData("tvil"); // добавляем callbackData
-        row7.add(button7);
-
-
-
-        keyboard.add(row1);
-        keyboard.add(row2);
-        keyboard.add(row3);
-        keyboard.add(row4);
-        keyboard.add(row5);
-        keyboard.add(row6);
-        keyboard.add(row7);
-
+        List<List<InlineKeyboardButton>> keyboard = Stream.of(
+                        new AbstractMap.SimpleEntry<>("OneTwoTrip", "oneTwoTrip"),
+                        new AbstractMap.SimpleEntry<>("Оstrovok.ru", "ostrovok"),
+                        new AbstractMap.SimpleEntry<>("Яндекс Путешествия", "yandex"),
+                        new AbstractMap.SimpleEntry<>("Bronevik.ru", "bronevik"),
+                        new AbstractMap.SimpleEntry<>("Alean", "alean"),
+                        new AbstractMap.SimpleEntry<>("Sutochno.ru", "sutochno"),
+                        new AbstractMap.SimpleEntry<>("Твил", "tvil")
+                )
+                .map(entry -> {
+                    InlineKeyboardButton button = new InlineKeyboardButton(entry.getKey());
+                    button.setCallbackData(entry.getValue());
+                    return Collections.singletonList(button);
+                })
+                .collect(Collectors.toList());
         markup.setKeyboard(keyboard);
         return markup;
     }
@@ -359,43 +327,17 @@ public class HotelBot extends TelegramLongPollingBot {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-
         InlineKeyboardButton button1 = new InlineKeyboardButton("\uD83D\uDD19Назад");
-        button1.setCallbackData("top_question"); // добавляем callbackData
-        row1.add(button1);
-
+        button1.setCallbackData("top_question");
+        keyboard.add(Collections.singletonList(button1));
 
         InlineKeyboardButton button2 = new InlineKeyboardButton("Главное меню");
-        button2.setCallbackData("MainMenu"); // добавляем callbackData
-        row2.add(button2);
-
-        keyboard.add(row1);
-        keyboard.add(row2);
+        button2.setCallbackData("MainMenu");
+        keyboard.add(Collections.singletonList(button2));
 
         markup.setKeyboard(keyboard);
         return markup;
     }
-
-    private ReplyKeyboard getBackToMenuKeyboard() {
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-
-        InlineKeyboardButton button1 = new InlineKeyboardButton("Главное меню");
-        button1.setCallbackData("MainMenu"); // добавляем callbackData
-        row1.add(button1);
-
-        keyboard.add(row1);
-
-        markup.setKeyboard(keyboard);
-        return markup;
-    }
-
-
-
 
     private InlineKeyboardMarkup getAdminChatMenuKeyboard() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
@@ -415,142 +357,36 @@ public class HotelBot extends TelegramLongPollingBot {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-        List<InlineKeyboardButton> row3 = new ArrayList<>();
-        List<InlineKeyboardButton> row4 = new ArrayList<>();
-        List<InlineKeyboardButton> row5 = new ArrayList<>();
-        List<InlineKeyboardButton> row6 = new ArrayList<>();
-        List<InlineKeyboardButton> row7 = new ArrayList<>();
-        List<InlineKeyboardButton> row8 = new ArrayList<>();
-        List<InlineKeyboardButton> row9 = new ArrayList<>();
-        List<InlineKeyboardButton> row10 = new ArrayList<>();
-        List<InlineKeyboardButton> row11 = new ArrayList<>();
-        List<InlineKeyboardButton> row12 = new ArrayList<>();
-        List<InlineKeyboardButton> row13 = new ArrayList<>();
-        List<InlineKeyboardButton> row14 = new ArrayList<>();
-        List<InlineKeyboardButton> row15 = new ArrayList<>();
-        List<InlineKeyboardButton> row16 = new ArrayList<>();
-        List<InlineKeyboardButton> row17 = new ArrayList<>();
-        List<InlineKeyboardButton> row18 = new ArrayList<>();
-        List<InlineKeyboardButton> row19 = new ArrayList<>();
-        List<InlineKeyboardButton> row20 = new ArrayList<>();
-        List<InlineKeyboardButton> row21 = new ArrayList<>();
-        List<InlineKeyboardButton> row22 = new ArrayList<>();
+        String[] buttonTexts = {
+                "Время выезда и заезда",
+                "Что включено в стоимость?",
+                "Парковка",
+                "Есть ли рядом магазин ?",
+                "А что есть в домике?",
+                "Какие различия между апартаментами?",
+                "Сдается весь домик или один этаж? ",
+                "Есть ли залог?",
+                "К вам можно с питомцем?",
+                "У вас есть где погулять?",
+                "У вас есть детские площадки?",
+                "У вас есть баня?",
+                "Кафе, рестораны, доставка еды?",
+                "Как добраться своим ходом?",
+                "Что такое дуплекс?",
+                "Есть ли мангалы? Решетки и шампура",
+                "Есть скидка на др?",
+                "А какие есть скидки?",
+                "У вас полная предоплата?",
+                "Где вас можно найти, ВК, инстаграм?",
+                "Я боюсь бронировать , вы точно не мошенники",
+                "Есть ли отдельное пространство для компаний"
+        };
 
-
-
-        InlineKeyboardButton button1 = new InlineKeyboardButton("Время выезда и заезда");
-        button1.setCallbackData("question_1"); // добавляем callbackData
-        row1.add(button1);
-
-
-        InlineKeyboardButton button2 = new InlineKeyboardButton("Что включено в стоимость?");
-        button2.setCallbackData("question_2"); // добавляем callbackData
-        row2.add(button2);
-
-        InlineKeyboardButton button3 = new InlineKeyboardButton("Парковка");
-        button3.setCallbackData("question_3"); // добавляем callbackData
-        row3.add(button3);
-
-        InlineKeyboardButton button4 = new InlineKeyboardButton("Есть ли рядом магазин ?");
-        button4.setCallbackData("question_4"); // добавляем callbackData
-        row4.add(button4);
-
-        InlineKeyboardButton button5 = new InlineKeyboardButton("А что есть в домике?");
-        button5.setCallbackData("question_5"); // добавляем callbackData
-        row5.add(button5);
-
-        InlineKeyboardButton button6 = new InlineKeyboardButton("Какие различия между апартаментами?");
-        button6.setCallbackData("question_6"); // добавляем callbackData
-        row6.add(button6);
-
-        InlineKeyboardButton button7 = new InlineKeyboardButton("Сдается весь домик или один этаж? ");
-        button7.setCallbackData("question_7"); // добавляем callbackData
-        row7.add(button7);
-
-        InlineKeyboardButton button8 = new InlineKeyboardButton("Есть ли залог?");
-        button8.setCallbackData("question_8"); // добавляем callbackData
-        row8.add(button8);
-
-        InlineKeyboardButton button9 = new InlineKeyboardButton("К вам можно с питомцем?");
-        button9.setCallbackData("question_9"); // добавляем callbackData
-        row9.add(button9);
-
-        InlineKeyboardButton button10 = new InlineKeyboardButton("У вас есть где погулять?");
-        button10.setCallbackData("question_10"); // добавляем callbackData
-        row10.add(button10);
-
-        InlineKeyboardButton button11 = new InlineKeyboardButton("У вас есть детские площадки?");
-        button11.setCallbackData("question_11"); // добавляем callbackData
-        row11.add(button11);
-
-        InlineKeyboardButton button12 = new InlineKeyboardButton("У вас есть баня?");
-        button12.setCallbackData("question_12"); // добавляем callbackData
-        row12.add(button12);
-
-        InlineKeyboardButton button13 = new InlineKeyboardButton("Кафе, рестораны, доставка еды?");
-        button13.setCallbackData("question_13"); // добавляем callbackData
-        row13.add(button13);
-
-        InlineKeyboardButton button14 = new InlineKeyboardButton("Как добраться своим ходом?");
-        button14.setCallbackData("question_14"); // добавляем callbackData
-        row14.add(button14);
-
-        InlineKeyboardButton button15 = new InlineKeyboardButton("Что такое дуплекс?");
-        button15.setCallbackData("question_15"); // добавляем callbackData
-        row15.add(button15);
-
-        InlineKeyboardButton button16 = new InlineKeyboardButton("Есть ли мангалы? Решетки и шампура");
-        button16.setCallbackData("question_16"); // добавляем callbackData
-        row16.add(button16);
-
-        InlineKeyboardButton button17 = new InlineKeyboardButton("Есть скидка на др?");
-        button17.setCallbackData("question_17"); // добавляем callbackData
-        row17.add(button17);
-
-        InlineKeyboardButton button18 = new InlineKeyboardButton("А какие есть скидки?");
-        button18.setCallbackData("question_18"); // добавляем callbackData
-        row18.add(button18);
-
-        InlineKeyboardButton button19 = new InlineKeyboardButton("У вас полная предоплата?");
-        button19.setCallbackData("question_19"); // добавляем callbackData
-        row19.add(button19);
-
-        InlineKeyboardButton button20 = new InlineKeyboardButton("Где вас можно найти, ВК, инстаграм?");
-        button20.setCallbackData("question_20"); // добавляем callbackData
-        row20.add(button20);
-
-        InlineKeyboardButton button21 = new InlineKeyboardButton("Я боюсь бронировать , вы точно не мошенники");
-        button21.setCallbackData("question_21"); // добавляем callbackData
-        row21.add(button21);
-
-        InlineKeyboardButton button22 = new InlineKeyboardButton("Есть ли отдельное пространство для компаний");
-        button22.setCallbackData("question_22"); // добавляем callbackData
-        row22.add(button22);
-
-        keyboard.add(row1);
-        keyboard.add(row2);
-        keyboard.add(row3);
-        keyboard.add(row4);
-        keyboard.add(row5);
-        keyboard.add(row6);
-        keyboard.add(row7);
-        keyboard.add(row8);
-        keyboard.add(row9);
-        keyboard.add(row10);
-        keyboard.add(row11);
-        keyboard.add(row12);
-        keyboard.add(row13);
-        keyboard.add(row14);
-        keyboard.add(row15);
-        keyboard.add(row16);
-        keyboard.add(row17);
-        keyboard.add(row18);
-        keyboard.add(row19);
-        keyboard.add(row20);
-        keyboard.add(row21);
-        keyboard.add(row22);
+        for (int i = 0; i < buttonTexts.length; i++) {
+            InlineKeyboardButton button = new InlineKeyboardButton(buttonTexts[i]);
+            button.setCallbackData("question_" + (i + 1));
+            keyboard.add(Collections.singletonList(button));
+        }
 
         markup.setKeyboard(keyboard);
         return markup;
@@ -578,54 +414,31 @@ public class HotelBot extends TelegramLongPollingBot {
         Message message = update.getMessage();
         long chatId = message.getChatId();
         User user = message.getFrom();
-        String userName = user.getUserName();
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
         String text = message.getText();
         LocalDateTime localDateTime = LocalDateTime.now();
 
-        saveReviewToDatabase(chatId, userName, firstName, lastName, text, localDateTime);
+        saveReviewToDatabase(chatId, user.getUserName(), user.getFirstName(), user.getLastName(), text, localDateTime);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
-        sendMessage(950452865, lastName + " " + firstName + " Оставил новый отзыв: " + text);
+        sendMessage(950452865, user.getLastName() + " " + user.getFirstName() + " Оставил новый отзыв: " + text);
 
-        SendMessage response = new SendMessage();
-        response.setChatId(chatId);
-        response.setText("Благодарим Вас за обратную связь!\n" +
+        sendResponse(chatId, "Благодарим Вас за обратную связь!\n" +
                 "Рады объявить Вас почетным гостем к оттеджей Скворешники и презентовать Вам промокод - \"СвояПтица\" на скидку 5% на все последующие бронирования! Чтобы получить скидку, используйте промокод при бронировании через модуль онлайн бронирования)");
-        try {
-            execute(response);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
     }
 
     private void handleWaitingForAdmin(Update update) {
         Message message = update.getMessage();
         long chatId = message.getChatId();
         User user = message.getFrom();
-        String userName = user.getUserName();
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
         String text = message.getText();
         LocalDateTime localDateTime = LocalDateTime.now();
-        Question question = new Question(chatId,null,userName,firstName,lastName,text,null,localDateTime,false);
+        Question question = new Question(chatId, null, user.getUserName(), user.getFirstName(), user.getLastName(), text, null, localDateTime, false);
         questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
         message.setReplyMarkup(getAdminChatMenuKeyboard());
-        sendMessageToAdmin(1702253908,
-                question.getId() +"."+ lastName + " " + firstName + " Задал(а) вопрос администратору: " + text, message);
+        sendMessageToAdmin(1702253908, question.getId() + "." + user.getLastName() + " " + user.getFirstName() + " Задал(а) вопрос администратору: " + text, message);
 
-        SendMessage response = new SendMessage();
-        response.setChatId(chatId);
-        response.setText("Администратор получил ваш вопрос и скоро он ответит вам.");
-        try {
-            execute(response);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        sendResponse(chatId, "Администратор получил ваш вопрос и скоро он ответит вам.");
     }
-
-
 
     private void handleWaitingForAnswerToGuest(Update update) {
         Message message = update.getMessage();
@@ -665,6 +478,17 @@ public class HotelBot extends TelegramLongPollingBot {
         }
     }
 
+    private void sendResponse(long chatId, String text) {
+        SendMessage response = new SendMessage();
+        response.setChatId(chatId);
+        response.setText(text);
+        try {
+            execute(response);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendMessageToAdmin(long chatId, String text, Message messagetoAdmin) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
@@ -679,7 +503,7 @@ public class HotelBot extends TelegramLongPollingBot {
 
     private void sendMessage(long chatId, String text) {
         SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
+        message.setChatId(chatId);
         message.setText(text);
         try {
             execute(message);
@@ -687,8 +511,6 @@ public class HotelBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
-
 
         private void handleCallbackQuery(CallbackQuery callbackQuery) {
             String callbackData = callbackQuery.getData();
