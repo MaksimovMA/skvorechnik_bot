@@ -447,7 +447,7 @@ public class HotelBot extends TelegramLongPollingBot {
 
         Question question = questionOptional.get();
         sendMessage(question.getChatGestID(), "Администратор " + userName + ": " + message.getText());
-        question.setAnswer(text);
+        question.setAnswer(question.getAnswer() + "\n" + text);
         question.setProcessed(true);
         questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
