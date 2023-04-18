@@ -18,12 +18,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 public class HotelBot extends TelegramLongPollingBot {
 
@@ -104,7 +102,7 @@ public class HotelBot extends TelegramLongPollingBot {
         String lastName = update.getMessage().getFrom().getLastName();
 
         if (messageText.equals("Старт")) {
-            message.setText("Добро пожаловать в наш отель! Выберите опцию:");
+            message.setText("Добро пожаловать в онлайн-бот Коттеджей Скворешники! Мы постарались собрать здесь всю важную информацию и ответы на самые популярные вопросы. Если вдруг это не так - свяжитесь с нами, такую возможность мы тоже добавили) Приятного использования! Выберите опцию:");
             saveUserToDatabase(chatId, userName, firstName, lastName, messageText);
             message.setReplyMarkup(getMainMenuKeyboard());
         } else {
@@ -196,6 +194,20 @@ public class HotelBot extends TelegramLongPollingBot {
         return markup;
     }
 
+    private InlineKeyboardMarkup getAskAdminMenuKeyboard() {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> row7 = new ArrayList<>();
+
+        InlineKeyboardButton button7 = new InlineKeyboardButton("\uD83D\uDC69\u200D\uD83D\uDCBCЗадать вопрос администратору");
+        button7.setCallbackData("ask_admin"); // добавляем callbackData
+        row7.add(button7);
+        keyboard.add(row7);
+
+        markup.setKeyboard(keyboard);
+        return markup;
+    }
+
     private InlineKeyboardMarkup getContactMenuKeyboard() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -247,7 +259,7 @@ public class HotelBot extends TelegramLongPollingBot {
         button1.setCallbackData("call_booking"); // добавляем callbackData
         row1.add(button1);
 
-        InlineKeyboardButton button2 = new InlineKeyboardButton("Администратор");
+        InlineKeyboardButton button2 = new InlineKeyboardButton("Служба приёма и размещение");
         button2.setCallbackData("call_admin"); // добавляем callbackData
         row1.add(button2);
 
@@ -565,9 +577,10 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setText("Позвонить");
                 message.setReplyMarkup(getCallMenuKeyboard());
             }
-            case "call_booking" -> message.setText("8 (931) 588-53-39");
-            case "call_admin" -> message.setText("8 (921) 886-66-44");
-            case "whatsApp" -> message.setText("8 (931) 588-53-39");
+            case "call_booking" -> message.setText("8(921)886-66-44");
+            case "call_admin" -> message.setText("8(931)588-53-39");
+            case "whatsApp" -> {message.setText("Напишите нам в WhatsApp 8(931)588-53-39 или задайте вопрос, здесь нажав кнопку\uD83D\uDC47");
+                                message.setReplyMarkup(getAskAdminMenuKeyboard());}
             case "email" -> message.setText("skvoreshniki-apart@yandex.ru");
             case "vk" -> message.setText("https://vk.com/skvoreshnikiapart");
             case "instagram" -> message.setText("https://instagram.com/skvoreshnikiapart");
@@ -589,7 +602,7 @@ public class HotelBot extends TelegramLongPollingBot {
             case "sutochno" -> message.setText("https://sutochno.ru/");
             case "tvil" -> message.setText("https://tvil.ru/");
             case "route_info" -> {
-                message.setText("Через системы-посредники");
+                message.setText("Наш адрес : поселок Лисий нос, Приморское шоссе 96. Посмотрите подсказки ниже, мы составили для вас маршрут..");
                 message.setReplyMarkup(getRouteMenuKeyboard());
             }
             case "walk_route" -> message.setText("Без машины удобнее всего добираться от станции метро Беговая.\n" +
@@ -599,13 +612,13 @@ public class HotelBot extends TelegramLongPollingBot {
             case "car_route" -> message.setText("https://yandex.ru/maps/-/CCU85Ovg0D");
             case "important_info" ->
                     message.setText("Наш адрес: Санкт-Петербург, поселок Лисий Нос, Приморское шоссе, 96. Въезд на территорию - прямо с шоссе (серый каменный забор, деревянные ворота).\n" +
-                            "На территории постоянно находится дежурный администратор. Телефон для связи 8 (921) 588-53-39. Звоните ей по прибытии, и она поможет с заселением. \n" +
+                            "На территории постоянно находится дежурный администратор. Телефон для связи 8(921)588-53-39. Звоните ей по прибытии, и она поможет с заселением. \n" +
                             "\n" +
-                            "Взимается депозит 3000р\\на апартамент. \n" +
+                            "Взимается депозит 3000р\\на апартамент.\n" +
                             "\n" +
-                            "Парковка на территории бесплатная при наличии мест. Заезд с 14.00 до 23.00, выезд до 12.00. Если вы не на машине, удобнее всего добраться от м.Беговая на автобусе № 101, 211, 216, 303, 600 или на маршрутках № 305, 400, 405, 417. Остановка \"Лисий нос. Военная улица\". Время в пути 18минут.\n" +
+                            "Парковка на территории бесплатная при наличии мест. Заезд с 14.00 до 23.00, выезд до 12.00. Если вы не на машине, удобнее всего добраться от м.Беговая на автобусе № 101, 211, 216, 303, 600 или на маршрутках № 305, 400, 405, 417. Остановка \"Лисий нос. Военная улица\". Время в пути 18минут.\n" +
                             "\n" +
-                            "На территории работает  Wi-Fi - логин и пароль Вы можете найти в папке гостя в вашем номере.\n" +
+                            "На территории работает Wi-Fi - логин и пароль Вы можете найти в папке гостя в вашем номере.\n" +
                             "\n" +
                             "В кухне имеется следующий набор посуды и бытовой техники на 4 чел: микроволновка, холодильник, однокомфорочная индукционная плита, кастрюля, сковорода, ковш, чайник, френчпресс для кофе/чая, тарелки плоские и глубокие, кружки, бокалы, столовые приборы, ножи, доска разделочная, штопор. В санузле имеется фен. В спальне - постельное белье и по 2 полотенца на каждого гостя.\n" +
                             "\n" +
@@ -625,7 +638,7 @@ public class HotelBot extends TelegramLongPollingBot {
                             "\n" +
                             "Продуктовый магазин: Магнит и местный ресторанчик - 5 минут ходьбы налево из ворот. Пляж Морские Дубки- 7 минут на машине или 30 минут пешком, ул. Новоцентральная. Пляж оборудован местами для отдыха и детской площадкой.\n" +
                             "\n" +
-                            "Приглашаем также вступить в нашу группу в Инстаграм https://instagram.com/skvoreshnikiapart?igshid=YmMyMTA2M2Y= и VK https://vk.com/skvoreshnikiapart \n" +
+                            "Приглашаем также вступить в нашу группу в Инстаграм https://instagram.com/skvoreshnikiapart?igshid=YmMyMTA2M2Y= и VK https://vk.com/skvoreshnikiapart\n" +
                             "\n" +
                             "Приятного отдыха! Всегда рады помочь!\n" +
                             "\n" +
@@ -714,7 +727,7 @@ public class HotelBot extends TelegramLongPollingBot {
             }
             case "question_11" -> {
                 message.setText("К сожалению детской площадки на территории нет. Ближайшая площадка находится в центре поселка - около Стрелковой ул.4 ( 20 минут пешком), так же детская площадка есть на пляже Морские Дубки, и возле магазина Реалъ \n" +
-                        "Для деток у нас есть широкий ассортимент настольных игр, их можно взять бесплатно у администратора. \n" +
+                        "Для деток у нас есть широкий ассортимент настольных игр, их можно взять бесплатно у администратора.\n" +
                         "Можно взять в прокат велосипеды, бадминтон.");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
@@ -723,7 +736,7 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "question_13" -> {
-                message.setText("Неподалеку от нас находится хорошее вкусное кафе Fox inn rest (Приморское шоссе 44) \n" +
+                message.setText("Неподалеку от нас находится хорошее вкусное кафе Fox inn rest (Приморское шоссе 44)\n" +
                         "А так же к нам доезжают практически все городские доставки.\n" +
                         "Если вы непротив поготовить во время отдыха, то во всех апартах есть кухни со всей необходимой посудой и техникой, а магазин находится в 5 минутах пешком.\n" +
                         "____\n" +
@@ -773,7 +786,7 @@ public class HotelBot extends TelegramLongPollingBot {
             case "question_20" -> {
                 message.setText("Наш сайт: https://skvoreshniki.clients.site/\n" +
                         "Инстаграм https://instagram.com/skvoreshnikiapart?igshid=YmMyMTA2M2Y= \n" +
-                        "Вконтакте https://vk.com/skvoreshnikiapart \n" +
+                        "Вконтакте https://vk.com/skvoreshnikiapart\n" +
                         "Мы на Яндекс. картах : https://yandex.ru/maps/-/CCUjQZf71B\n" +
                         "Наши контакты:\n" +
                         "skvoreshniki-apart@yandex.ru\n" +
@@ -781,8 +794,8 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "question_21" -> {
-                message.setText("Вы можете самостоятельно найти нас на Яндекс картах, почитать отзывы, и забронировать по ссылке из профиля организации. \n" +
-                        "Мы называемся Коттеджи Скворешники (ссылка на Яндекс карты https://yandex.ru/maps/-/CCUjQZf71B ) \n" +
+                message.setText("Вы можете самостоятельно найти нас на Яндекс картах, почитать отзывы, и забронировать по ссылке из профиля организации.\n" +
+                        "Мы называемся Коттеджи Скворешники (ссылка на Яндекс карты https://yandex.ru/maps/-/CCUjQZf71B )\n" +
                         "Так же Вы всегда можете сделать бронирование через систему бронирований яндекс.путешествия, островок.ру, суточно.ру, твил, OneTwoTrip, цены через системы бронирований будут повыше, но они так же успешно придут к нам, и мы будем ожидать Вас на заезд.");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
@@ -792,13 +805,13 @@ public class HotelBot extends TelegramLongPollingBot {
             }
             case "before_book_time" -> {
                 message.setText("Да, у нас есть возможность раннего заезда, это будет стоить 250рчас.\n" +
-                        "Стандартное время заезда - с 14-00. \n" +
+                        "Стандартное время заезда - с 14-00.\n" +
                         "Если Вы решите что Вам необходим ранний заезд, требуется подтверждение администратора, зависящее от возможности на вашу дату.");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "night_time_leave" -> {
                 message.setText("Если вы хотели бы выехать вечером, рекомендуем забронировать апартаменты на вторые сутки. Таким образом Вы сможете пребывать на территории сколько Вам нужно, и выехать в любое время до 12-00 следующего дня.\n" +
-                        "Это удобно, когда Вам хотелось бы провести день загородом, но завтра на работу. \n" +
+                        "Это удобно, когда Вам хотелось бы провести день загородом, но завтра на работу.\n" +
                         "Продление почасово к сожалению предложить не можем. (т.к оно позволяет продлить апарт не более чем до 3 часов дня)");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
