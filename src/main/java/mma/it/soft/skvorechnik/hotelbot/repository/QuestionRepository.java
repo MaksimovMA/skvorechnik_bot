@@ -16,4 +16,6 @@ public interface QuestionRepository extends CrudRepository<Question, Long> {
     Question findByChatAdminIDAndProcessedEquals (Long chatAdminId, Boolean Processed);
 
 
+
+
 }

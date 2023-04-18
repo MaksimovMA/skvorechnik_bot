@@ -345,6 +345,20 @@ public class HotelBot extends TelegramLongPollingBot {
         return markup;
     }
 
+    private InlineKeyboardMarkup getShowAnswerMenuKeyboard(Question question) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        InlineKeyboardButton button1 = new InlineKeyboardButton(question.getId() + ".Посмотреть ответ");
+        button1.setCallbackData("showGuestAnswer");// добавляем callbackData
+        row1.add(button1);
+
+        keyboard.add(row1);
+        markup.setKeyboard(keyboard);
+        return markup;
+    }
+
     private ReplyKeyboard getQuestionMenuKeyboard() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -427,7 +441,7 @@ public class HotelBot extends TelegramLongPollingBot {
         questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
         message.setReplyMarkup(getAdminChatMenuKeyboard());
-        sendMessageToAdmin(1702253908, question.getId() + "." + user.getLastName() + " " + user.getFirstName() + " Задал(а) вопрос администратору: " + text, message);
+        sendMessageToAdmins(question.getId() + "." + user.getLastName() + " " + user.getFirstName() + " Задал(а) вопрос администратору: " + text, message);
         sendResponse(chatId, "Администратор получил ваш вопрос и скоро он ответит вам.");
     }
 
@@ -439,15 +453,13 @@ public class HotelBot extends TelegramLongPollingBot {
         String text = message.getText();
         Long questionID = adminToQuestion.get(chatId);
         Optional<Question> questionOptional = questionRepository.findById(questionID);
-
-        if (!questionOptional.isPresent()) {
-            // Обработка ситуации, когда объект Question не найден
-            return;
-        }
-
         Question question = questionOptional.get();
         sendMessage(question.getChatGestID(), "Администратор " + userName + ": " + message.getText());
-        question.setAnswer(question.getAnswer() + "\n" + text);
+        String answer = question.getAnswer();
+        if (answer == null) {
+            answer = "";
+        }
+        question.setAnswer(answer + text + "\n");
         question.setProcessed(true);
         questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
@@ -492,6 +504,14 @@ public class HotelBot extends TelegramLongPollingBot {
         }
     }
 
+    private void sendMessageToAdmins(String text, Message messagetoAdmin) {
+        Set<AdminUser> adminUsers  = adminUserRepository.findAll();
+        Set<Long> subscribers = adminUsers.stream().map(AdminUser::getChatID).collect(Collectors.toSet());
+        for (Long Id : subscribers) {
+            sendMessageToAdmin(Id, text, messagetoAdmin);
+        }
+    }
+
     private void sendMessage(long chatId, String text) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -523,10 +543,21 @@ public class HotelBot extends TelegramLongPollingBot {
                 String questionId = text.substring(0, text.indexOf('.'));
                 Optional<Question> optionalQuestion = questionRepository.findById(Long.valueOf(questionId));
                 Question question = optionalQuestion.get();
+                if (question.getChatAdminID()==null || question.getChatAdminID().equals(chatId))
+                {
                 question.setChatAdminID(chatId);
                 questionRepository.save(question);
                 adminToQuestion.put(chatId, Long.valueOf(questionId));
                 userStates.put(chatId, BotState.WAITING_FOR_ANSWER_TO_GEST);
+                } else {
+                    message.setText("Другой администратор уже отвечает на вопрос");
+                    message.setReplyMarkup(getShowAnswerMenuKeyboard(question));
+                }
+            }
+            case "showGuestAnswer" -> {
+                String questionId = callbackQuery.getMessage().getReplyMarkup().getKeyboard().get(0).get(0).getText().substring(0,(callbackQuery.getMessage().getReplyMarkup().getKeyboard().get(0).get(0).getText().indexOf('.')));
+                Optional<Question> question = questionRepository.findById(Long.valueOf(questionId));
+                message.setText(question.get().getAnswer());
             }
 
             case "contact" -> {
@@ -612,7 +643,6 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setText("Популярные вопросы");
                 message.setReplyMarkup(getQuestionMenuKeyboard());
             }
-
 
             case "question_1" -> {
                 message.setText("Время заезда - с 14-00.\n" +
