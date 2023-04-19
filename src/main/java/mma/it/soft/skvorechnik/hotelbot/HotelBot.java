@@ -106,7 +106,7 @@ public class HotelBot extends TelegramLongPollingBot {
         String firstName = update.getMessage().getFrom().getFirstName();
         String lastName = update.getMessage().getFrom().getLastName();
 
-        if (messageText.equals("Старт")) {
+        if (messageText.equals("Старт") || messageText.equals("/start")) {
             message.setText("Добро пожаловать в онлайн-бот Коттеджей Скворешники! Мы постарались собрать здесь всю важную информацию и ответы на самые популярные вопросы. Если вдруг это не так - свяжитесь с нами, такую возможность мы тоже добавили) Приятного использования! Выберите опцию:");
             saveUserToDatabase(chatId, userName, firstName, lastName, messageText);
             message.setReplyMarkup(getMainMenuKeyboard());
