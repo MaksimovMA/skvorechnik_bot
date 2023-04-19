@@ -39,7 +39,8 @@ public class HotelBot extends TelegramLongPollingBot {
         WAITING_FOR_COMMAND,
         WAITING_FOR_REVIEW,
         WAiTING_FOR_ADMIN,
-        WAITING_FOR_ANSWER_TO_GEST
+        WAITING_FOR_ANSWER_TO_GUEST,
+        WAITING_ANSWER_FOR_ADMIN
     }
 
     private final String BOT_TOKEN = "5961355034:AAHq881xoYrOQpqb1Lul8i7ObnG5PeYY9zI";
@@ -88,7 +89,10 @@ public class HotelBot extends TelegramLongPollingBot {
                 case WAiTING_FOR_ADMIN:
                     handleWaitingForAdmin(update);
                     break;
-                case WAITING_FOR_ANSWER_TO_GEST:
+                case WAITING_ANSWER_FOR_ADMIN:
+                    handleAnswerForAdmin(update);
+                    break;
+                case WAITING_FOR_ANSWER_TO_GUEST:
                     handleWaitingForAnswerToGuest(update);
             }
         } else if (update.hasCallbackQuery()) {
@@ -238,7 +242,7 @@ public class HotelBot extends TelegramLongPollingBot {
         button4.setCallbackData("vk"); // добавляем callbackData
         row2.add(button4);
 
-        InlineKeyboardButton button5 = new InlineKeyboardButton("Мы в Интсаграме");
+        InlineKeyboardButton button5 = new InlineKeyboardButton("Мы в Инстаграме");
         button5.setCallbackData("instagram"); // добавляем callbackData
         row3.add(button5);
 
@@ -353,8 +357,22 @@ public class HotelBot extends TelegramLongPollingBot {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
         List<InlineKeyboardButton> row1 = new ArrayList<>();
-        InlineKeyboardButton button1 = new InlineKeyboardButton("Ответить");
+        InlineKeyboardButton button1 = new InlineKeyboardButton("Ответить гостю");
         button1.setCallbackData("answerToGuest"); // добавляем callbackData
+        row1.add(button1);
+
+        keyboard.add(row1);
+        markup.setKeyboard(keyboard);
+        return markup;
+    }
+
+    private InlineKeyboardMarkup getAnswerGuestChatMenuKeyboard() {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        InlineKeyboardButton button1 = new InlineKeyboardButton("Ответить администратору");
+        button1.setCallbackData("answerToAdmin"); // добавляем callbackData
         row1.add(button1);
 
         keyboard.add(row1);
@@ -449,6 +467,20 @@ public class HotelBot extends TelegramLongPollingBot {
     }
 
     private void handleWaitingForAdmin(Update update) {
+        Message message = update.getMessage();
+        long chatId = message.getChatId();
+        User user = message.getFrom();
+        String text = message.getText();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Question question = new Question(chatId, null, user.getUserName(), user.getFirstName(), user.getLastName(), text, null, localDateTime, false);
+        questionRepository.save(question);
+        userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
+        message.setReplyMarkup(getAdminChatMenuKeyboard());
+        sendMessageToAdmins(question.getId() + "." + user.getLastName() + " " + user.getFirstName() + " Задал(а) вопрос администратору: " + text, message);
+        sendResponse(chatId, "Администратор получил ваш вопрос и скоро он ответит вам.");
+    }
+
+    private void handleAnswerForAdmin(Update update) {
         Message message = update.getMessage();
         long chatId = message.getChatId();
         User user = message.getFrom();
@@ -563,12 +595,18 @@ public class HotelBot extends TelegramLongPollingBot {
                 question.setChatAdminID(chatId);
                 questionRepository.save(question);
                 adminToQuestion.put(chatId, Long.valueOf(questionId));
-                userStates.put(chatId, BotState.WAITING_FOR_ANSWER_TO_GEST);
+                userStates.put(chatId, BotState.WAITING_FOR_ANSWER_TO_GUEST);
                 } else {
                     message.setText("Другой администратор уже отвечает на вопрос");
                     message.setReplyMarkup(getShowAnswerMenuKeyboard(question));
                 }
             }
+
+            case "answerToAdmin" -> {
+                message.setText("Ответить администратору, сделать это нужно в одном сообщении:");
+                userStates.put(chatId, BotState.WAITING_ANSWER_FOR_ADMIN);
+            }
+
             case "showGuestAnswer" -> {
                 String questionId = callbackQuery.getMessage().getReplyMarkup().getKeyboard().get(0).get(0).getText().substring(0,(callbackQuery.getMessage().getReplyMarkup().getKeyboard().get(0).get(0).getText().indexOf('.')));
                 Optional<Question> question = questionRepository.findById(Long.valueOf(questionId));
