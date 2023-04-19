@@ -841,19 +841,21 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "question_20" -> {
-                message.setText("Наш сайт: https://skvoreshniki.clients.site/\n" +
-                        "Инстаграм https://instagram.com/skvoreshnikiapart?igshid=YmMyMTA2M2Y= \n" +
-                        "Вконтакте https://vk.com/skvoreshnikiapart\n" +
-                        "Мы на Яндекс. картах : https://yandex.ru/maps/-/CCUjQZf71B\n" +
-                        "Наши контакты:\n" +
-                        "skvoreshniki-apart@yandex.ru\n" +
-                        "тел. 8(921) 886-66-44 служба бронирования 8(921)588-53-39 ресепшн");
+                message.setText("""
+                        Наш сайт: https://skvoreshniki.clients.site/
+                        Инстаграм https://instagram.com/skvoreshnikiapart?igshid=YmMyMTA2M2Y=\s
+                        Вконтакте https://vk.com/skvoreshnikiapart
+                        Мы на Яндекс. картах : https://yandex.ru/maps/-/CCUjQZf71B
+                        Наши контакты:
+                        skvoreshniki-apart@yandex.ru
+                        тел. 8(921) 886-66-44 служба бронирования 8(921)588-53-39 ресепшн""");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "question_21" -> {
-                message.setText("Вы можете самостоятельно найти нас на Яндекс картах, почитать отзывы, и забронировать по ссылке из профиля организации.\n" +
-                        "Мы называемся Коттеджи Скворешники (ссылка на Яндекс карты https://yandex.ru/maps/-/CCUjQZf71B )\n" +
-                        "Так же Вы всегда можете сделать бронирование через систему бронирований яндекс.путешествия, островок.ру, суточно.ру, твил, OneTwoTrip, цены через системы бронирований будут повыше, но они так же успешно придут к нам, и мы будем ожидать Вас на заезд.");
+                message.setText("""
+                        Вы можете самостоятельно найти нас на Яндекс картах, почитать отзывы, и забронировать по ссылке из профиля организации.
+                        Мы называемся Коттеджи Скворешники (ссылка на Яндекс карты https://yandex.ru/maps/-/CCUjQZf71B )
+                        Так же Вы всегда можете сделать бронирование через систему бронирований яндекс.путешествия, островок.ру, суточно.ру, твил, OneTwoTrip, цены через системы бронирований будут повыше, но они так же успешно придут к нам, и мы будем ожидать Вас на заезд.""");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "question_22" -> {
@@ -861,9 +863,10 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "before_book_time" -> {
-                message.setText("Да, у нас есть возможность раннего заезда, это будет стоить 250рчас.\n" +
-                        "Стандартное время заезда - с 14-00.\n" +
-                        "Если Вы решите что Вам необходим ранний заезд, требуется подтверждение администратора, зависящее от возможности на вашу дату.");
+                message.setText("""
+                        Да, у нас есть возможность раннего заезда, это будет стоить 250рчас.
+                        Стандартное время заезда - с 14-00.
+                        Если Вы решите что Вам необходим ранний заезд, требуется подтверждение администратора, зависящее от возможности на вашу дату.""");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "night_time_leave" -> {
@@ -873,9 +876,10 @@ public class HotelBot extends TelegramLongPollingBot {
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "later_leave" -> {
-                message.setText("\n" +
-                        "Возможность позднего выезда зависит от наличия последующего бронирования.\n" +
-                        "Об этом можно будет узнать у администратора в день Вашего выезда. Заранее гарантировать поздний выезд в выходные мы, к сожалению, не можем. Стоимость позднего выезда -  250 руб\\ в час ");
+                message.setText("""
+
+                        Возможность позднего выезда зависит от наличия последующего бронирования.
+                        Об этом можно будет узнать у администратора в день Вашего выезда. Заранее гарантировать поздний выезд в выходные мы, к сожалению, не можем. Стоимость позднего выезда -  250 руб\\ в час\s""");
                 message.setReplyMarkup(getBackQuestionMenuKeyboard());
             }
             case "back_to_question_menu" -> {
