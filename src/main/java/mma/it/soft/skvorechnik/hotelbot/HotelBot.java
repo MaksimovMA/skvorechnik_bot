@@ -21,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +41,7 @@ public class HotelBot extends TelegramLongPollingBot {
         WAITING_FOR_REVIEW,
         WAiTING_FOR_ADMIN,
         WAITING_FOR_ANSWER_TO_GUEST,
-        WAITING_ANSWER_FOR_ADMIN
+//        WAITING_ANSWER_FOR_ADMIN
     }
 
     private final String BOT_TOKEN = "5961355034:AAHq881xoYrOQpqb1Lul8i7ObnG5PeYY9zI";
@@ -89,9 +90,9 @@ public class HotelBot extends TelegramLongPollingBot {
                 case WAiTING_FOR_ADMIN:
                     handleWaitingForAdmin(update);
                     break;
-                case WAITING_ANSWER_FOR_ADMIN:
-                    handleAnswerForAdmin(update);
-                    break;
+//                case WAITING_ANSWER_FOR_ADMIN:
+//                    handleAnswerForAdmin(update);
+//                    break;
                 case WAITING_FOR_ANSWER_TO_GUEST:
                     handleWaitingForAnswerToGuest(update);
             }
@@ -472,21 +473,16 @@ public class HotelBot extends TelegramLongPollingBot {
         User user = message.getFrom();
         String text = message.getText();
         LocalDateTime localDateTime = LocalDateTime.now();
-        Question question = new Question(chatId, null, user.getUserName(), user.getFirstName(), user.getLastName(), text, null, localDateTime, false);
-        questionRepository.save(question);
-        userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
-        message.setReplyMarkup(getAdminChatMenuKeyboard());
-        sendMessageToAdmins(question.getId() + "." + user.getLastName() + " " + user.getFirstName() + " Задал(а) вопрос администратору: " + text, message);
-        sendResponse(chatId, "Администратор получил ваш вопрос и скоро он ответит вам.");
-    }
-
-    private void handleAnswerForAdmin(Update update) {
-        Message message = update.getMessage();
-        long chatId = message.getChatId();
-        User user = message.getFrom();
-        String text = message.getText();
-        LocalDateTime localDateTime = LocalDateTime.now();
-        Question question = new Question(chatId, null, user.getUserName(), user.getFirstName(), user.getLastName(), text, null, localDateTime, false);
+        Question question = questionRepository.findByChatGestID(chatId);
+        if (question != null){
+            String question1 = question.getQuestion();
+            if (question1 == null) {
+                question1 = " ";
+            }
+            question.setQuestion(question1 + localDateTime +" "+ text + "\n");
+            question.setAnswer(question.getAnswer() + "\n");
+        } else {
+        question = new Question(chatId, null, user.getUserName(), user.getFirstName(), user.getLastName(), localDateTime + " " + text, null, localDateTime, false);}
         questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
         message.setReplyMarkup(getAdminChatMenuKeyboard());
@@ -500,19 +496,21 @@ public class HotelBot extends TelegramLongPollingBot {
         User user = message.getFrom();
         String userName = user.getUserName();
         String text = message.getText();
+        LocalDateTime localDateTime = LocalDateTime.now();
         Long questionID = adminToQuestion.get(chatId);
         Optional<Question> questionOptional = questionRepository.findById(questionID);
         Question question = questionOptional.get();
-        sendMessage(question.getChatGestID(), "Администратор " + userName + ": " + message.getText());
+        message.setReplyMarkup(getAnswerGuestChatMenuKeyboard());
+        sendMessageToAdmin(question.getChatGestID(), "Администратор " + userName + ": " + message.getText(),message);
         String answer = question.getAnswer();
         if (answer == null) {
-            answer = "";
+            answer = " ";
         }
-        question.setAnswer(answer + text + "\n");
+        question.setAnswer(answer + localDateTime + " " + text + "\n");
+        question.setQuestion(question.getQuestion() + "\n");
         question.setProcessed(true);
         questionRepository.save(question);
         userStates.put(chatId, BotState.WAITING_FOR_COMMAND);
-        message.setReplyMarkup(getAdminChatMenuKeyboard());
         SendMessage response = new SendMessage();
         response.setChatId(chatId);
         try {
@@ -604,7 +602,7 @@ public class HotelBot extends TelegramLongPollingBot {
 
             case "answerToAdmin" -> {
                 message.setText("Ответить администратору, сделать это нужно в одном сообщении:");
-                userStates.put(chatId, BotState.WAITING_ANSWER_FOR_ADMIN);
+                userStates.put(chatId, BotState.WAiTING_FOR_ADMIN);
             }
 
             case "showGuestAnswer" -> {
