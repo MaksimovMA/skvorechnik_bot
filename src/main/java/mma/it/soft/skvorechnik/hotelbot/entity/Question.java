@@ -1,9 +1,6 @@
 package mma.it.soft.skvorechnik.hotelbot.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +15,9 @@ public class Question {
     private String username;
     private String firstName;
     private String lastName;
+    @Column(length = 10000)
     private String question;
+    @Column(length = 10000)
     private String answer;
     private LocalDateTime lastLogTime;
     private Boolean processed;
