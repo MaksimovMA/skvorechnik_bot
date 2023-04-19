@@ -8,6 +8,8 @@ import mma.it.soft.skvorechnik.hotelbot.repository.AdminUserRepository;
 import mma.it.soft.skvorechnik.hotelbot.repository.HotelUserRepository;
 import mma.it.soft.skvorechnik.hotelbot.repository.QuestionRepository;
 import mma.it.soft.skvorechnik.hotelbot.repository.ReviewRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -69,6 +71,8 @@ public class HotelBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        Logger log = LoggerFactory.getLogger(HotelBot.class);
+        log.info("Received update: {}", update);
         if (update.hasMessage() && update.getMessage().hasText()) {
             long chatId = update.getMessage().getChatId();
 
@@ -83,6 +87,7 @@ public class HotelBot extends TelegramLongPollingBot {
                     break;
                 case WAiTING_FOR_ADMIN:
                     handleWaitingForAdmin(update);
+                    break;
                 case WAITING_FOR_ANSWER_TO_GEST:
                     handleWaitingForAnswerToGuest(update);
             }
