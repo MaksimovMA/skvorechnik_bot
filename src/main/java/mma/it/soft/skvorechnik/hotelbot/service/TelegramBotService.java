@@ -1,7 +1,7 @@
 package mma.it.soft.skvorechnik.hotelbot.service;
 
 
-import mma.it.soft.skvorechnik.hotelbot.HotelBot;
+import mma.it.soft.skvorechnik.hotelbot.controller.HotelBotController;
 import mma.it.soft.skvorechnik.hotelbot.repository.AdminUserRepository;
 import mma.it.soft.skvorechnik.hotelbot.repository.HotelUserRepository;
 import mma.it.soft.skvorechnik.hotelbot.repository.QuestionRepository;
@@ -31,7 +31,7 @@ public class TelegramBotService {
             throw new RuntimeException(e);
         }
         try {
-            telegramBotsApi.registerBot(new HotelBot(this.reviewRepository, this.userRepository, this.adminUserRepository, this.questionRepository));
+            telegramBotsApi.registerBot(new HotelBotController(this.reviewRepository, this.userRepository, this.adminUserRepository, this.questionRepository));
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }

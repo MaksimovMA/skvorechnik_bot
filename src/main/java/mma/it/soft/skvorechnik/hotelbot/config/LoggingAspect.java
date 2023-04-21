@@ -26,7 +26,7 @@ public class LoggingAspect {
     public void repositoryMethods() {}
 
     // Добавьте эту строку для логирования класса HotelBot
-    @Pointcut("within(mma.it.soft.skvorechnik.hotelbot.HotelBot)")
+    @Pointcut("within(mma.it.soft.skvorechnik.hotelbot.controller.HotelBotController)")
     public void hotelBotMethods() {}
 
     @Before("serviceMethods() || controllerMethods() || repositoryMethods() || hotelBotMethods()")

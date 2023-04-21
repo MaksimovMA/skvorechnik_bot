@@ -1,4 +1,4 @@
-package mma.it.soft.skvorechnik.hotelbot;
+package mma.it.soft.skvorechnik.hotelbot.controller;
 
 import mma.it.soft.skvorechnik.hotelbot.entity.AdminUser;
 import mma.it.soft.skvorechnik.hotelbot.entity.HotelUser;
@@ -21,12 +21,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class HotelBot extends TelegramLongPollingBot {
+public class HotelBotController extends TelegramLongPollingBot {
 
     private Map<Long, BotState> userStates = new HashMap<>();
     private Map<Long, Long> adminToQuestion = new HashMap<>();
@@ -51,7 +50,7 @@ public class HotelBot extends TelegramLongPollingBot {
     private final AdminUserRepository adminUserRepository;
     private final QuestionRepository questionRepository;
 
-    public HotelBot(ReviewRepository reviewRepository, HotelUserRepository userRepository, AdminUserRepository adminUserRepository, QuestionRepository questionRepository) {
+    public HotelBotController(ReviewRepository reviewRepository, HotelUserRepository userRepository, AdminUserRepository adminUserRepository, QuestionRepository questionRepository) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.adminUserRepository = adminUserRepository;
@@ -73,7 +72,7 @@ public class HotelBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        Logger log = LoggerFactory.getLogger(HotelBot.class);
+        Logger log = LoggerFactory.getLogger(HotelBotController.class);
         log.info("Received update: {}", update);
         if (update.hasMessage() && update.getMessage().hasText()) {
             long chatId = update.getMessage().getChatId();
